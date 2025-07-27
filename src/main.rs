@@ -49,6 +49,12 @@ impl Notes {
     }
 }
 
+fn list_notes(notes: &Notes) {
+    for (key, value) in &notes.entries {
+        println!("{}: {}", key, value);
+    }
+}
+
 fn renumber_notes(notes: &mut Notes) {
     let values: Vec<String> = notes.entries.values().cloned().collect();
     notes.entries.clear();
@@ -102,6 +108,7 @@ fn main() {
                 notes.entries.insert(next_idx.to_string(), val.clone());
                 notes.save();
                 println!("Note added: {} -> {}", next_idx, val);
+                list_notes(&notes);
             } else {
                 eprintln!("Usage: add <value>");
             }
@@ -113,6 +120,7 @@ fn main() {
                     renumber_notes(&mut notes);
                     notes.save();
                     println!("Note deleted: {}", key);
+                    list_notes(&notes);
                 } else {
                     println!("Note not found: {}", key);
                 }
@@ -128,6 +136,7 @@ fn main() {
                         notes.entries.insert(key.clone(), new_value);
                         notes.save();
                         println!("Note updated.");
+                        list_notes(&notes);
                     } else {
                         eprintln!("Edit aborted or failed.");
                     }
@@ -136,6 +145,24 @@ fn main() {
                 }
             } else {
                 eprintln!("Usage: edit <key>");
+            }
+        }
+
+        "swap" => {
+            if let (Some(arg1), Some(arg2)) = (args.get(2), args.get(3)) {
+                if notes.entries.contains_key(arg1) && notes.entries.contains_key(arg2) {
+                    let val1 = notes.entries.get(arg1).cloned().unwrap();
+                    let val2 = notes.entries.get(arg2).cloned().unwrap();
+                    notes.entries.insert(arg1.clone(), val2);
+                    notes.entries.insert(arg2.clone(), val1);
+                    notes.save();
+                    println!("Swapped notes {} and {}", arg1, arg2);
+                    list_notes(&notes);
+                } else {
+                    eprintln!("One or both keys not found.");
+                }
+            } else {
+                eprintln!("Usage: swap <key1> <key2>");
             }
         }
 
@@ -165,20 +192,12 @@ fn main() {
     }
 }
 
-// Make it so that the list reorders itself on item delete
-
-// have a map contain all the notes
-// {
-//  1 : Do this
-//  2 : Do that
-// }
-//
 // OPTIONS:
 //  - LIST (no args)
 //  - ADD (1 arg)
 //  - DELETE (1 or more args)
 //  - EDIT (1 arg)
 //  - CLEAR
-//  - Rename key
 //
+// - colored text
 // - Project spaces
