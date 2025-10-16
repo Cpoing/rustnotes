@@ -1,1 +1,0 @@
-std::option::Option<&IndexMap<std::string::String, std::string::String>>
